@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About the Author</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         body {
@@ -136,7 +137,7 @@
     </div>
 
     <div class="about-container">
-        <img src="https://via.placeholder.com/150" alt="Author Image">
+        <img src="{{ url_for('static', filename='Author_image.jpg') }}" alt="Author Image">
         <p class="text-lg text-gray-700 mb-6 font-medium">
             I am currently a fourth-year student at UCLA majoring in Mathematics and Computer Science, with a passion for solving complex problems through machine learning and advanced computational techniques.
         </p>

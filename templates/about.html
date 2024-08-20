@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About the Author</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f3f4f6;
+            padding-top: 60px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: absolute;
+            top: 30px;
+            left: 40px;
+            right: 40px;
+        }
+
+        .menu {
+            position: relative;
+        }
+
+        .menu-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 15px;
+        }
+
+        .menu-button div {
+            width: 100%;
+            height: 3px;
+            background-color: #000;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-button:hover div:first-child {
+            transform: translateY(9px);
+        }
+
+        .menu-button:hover div:last-child {
+            transform: translateY(-9px);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #ffffff;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .dropdown-content a {
+            color: #000;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+
+        .show {
+            display: block;
+        }
+
+        .about-container {
+            max-width: 600px;
+            margin: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: left;
+            padding-bottom: 20px;
+            padding-top: 20px;
+        }
+
+        .about-container img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin-bottom: 30px;
+        }
+
+        .about-container p {
+            font-size: 1.125rem;
+            color: #333;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #000;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="header">
+        <h1>About the Author</h1>
+        <div class="menu">
+            <button onclick="toggleMenu()" class="menu-button">
+                <div></div>
+                <div></div>
+            </button>
+            <div id="dropdown" class="dropdown-content">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('upload') }}">Upload CSV</a>
+                <a href="{{ url_for('about') }}">About the Author</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-container">
+        <img src="https://via.placeholder.com/150" alt="Author Image">
+        <p class="text-lg text-gray-700 mb-6 font-medium">
+            I am currently a fourth-year student at UCLA majoring in Mathematics and Computer Science, with a passion for solving complex problems through machine learning and advanced computational techniques.
+        </p>
+        <p class="text-lg text-gray-700 mb-6 font-medium">
+            I have a solid foundation in algorithms, statistical modeling, and data analysis, with hands-on experience in developing and optimizing machine learning models for real-world applications. My academic projects range from predictive modeling to deep learning, where I focused on enhancing accuracy and efficiency.
+        </p>
+        <p class="text-lg text-gray-700 mb-6 font-medium">
+            I am actively seeking opportunities to apply my skills in real-world scenarios and contribute to innovative projects that leverage machine learning for impactful results. If you're interested in connecting, you can reach me on LinkedIn at <a href="https://www.linkedin.com/in/shayan-ravari-301086208" target="_blank" style="color: #007bff; text-decoration: underline;">Shayan Ravari</a>.
+        </p>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("dropdown").classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.menu-button') && !event.target.closest('.menu-button')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('resize', function() {
+            const aboutContainer = document.querySelector('.about-container');
+            const newTop = Math.max(window.innerHeight / 2, 100);
+            aboutContainer.style.top = `${newTop}px`;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Upload and Model Selection</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            padding-top: 60px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: absolute;
+            top: 30px;
+            left: 40px;
+            right: 40px;
+        }
+
+        .menu {
+            position: relative;
+        }
+
+        .menu-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 15px;
+        }
+
+        .menu-button div {
+            width: 100%;
+            height: 3px;
+            background-color: #000;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-button:hover div:first-child {
+            transform: translateY(9px);
+        }
+
+        .menu-button:hover div:last-child {
+            transform: translateY(-9px);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #ffffff;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .dropdown-content a {
+            color: #000;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+
+        .show {
+            display: block;
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            padding-top: 100px;
+            margin: 0 auto;
+            max-width: 1200px;
+            width: 100%;
+            height: 580px;
+            transition: transform 0.2s ease;
+            transform-origin: top center;
+        }
+
+        .options {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .options select,
+        .options input[type="range"],
+        .options button {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .options input[type="range"] {
+            height: 18px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+            outline: none;
+            border-radius: 5px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .options input[type="range"]::-webkit-slider-thumb,
+        .options input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .options button:hover {
+            background-color: #2563eb;
+        }
+
+        .image-rendering {
+            width: 600px;
+            height: 100%;
+            overflow: hidden;
+            flex-shrink: 0;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .card {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-right: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 500px;
+            overflow: hidden;
+        }
+
+        .card.options {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .control-group {
+            display: flex;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .control-group label {
+            margin-right: 10px;
+            flex: 1;
+            text-align: left;
+            min-width: 170px;
+        }
+
+        .control-group select {
+            flex: 3;
+            height: 2.5rem;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            border: 1px solid #ccc;
+            margin-top: -8.5px;
+            margin-bottom: 4px;
+        }
+
+        .control-group select:hover {
+            cursor: pointer;
+        }
+
+        .control-group input[type="range"] {
+            flex: 3;
+            margin-top: 2px;
+        }
+
+        .randomize-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 10px;
+            width: 100%;
+        }
+
+        #randomize-button {
+            width: 50%;
+            height: 2.5rem;
+        }
+
+        #randomize-type {
+            width: 45%;
+            height: 2.5rem;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            border: 1px solid #ccc;
+            height: 40px;
+        }
+
+        #randomize-type:hover {
+            cursor: pointer;
+        }
+
+        .card.options {
+            min-width: 400px;
+            width: 400px;
+            height: 100%;
+            margin-right: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        #file-input {
+            zoom: 0.85;
+        }
+
+        #upload-form {
+            margin-bottom: 0.5rem;
+        }
+
+        #model-result {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        #error-message {
+            text-align: center;
+            width: 100%;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            padding: 10px;
+            font-size: 0.875rem;
+            color: #4B5563;
+        }
+
+        @media (max-width: 2600px) {
+            .main-content {
+                transform: scale(1.1);
+            }
+        }
+
+        @media (max-width: 1700px) {
+            .main-content {
+                transform: scale(1.0);
+            }
+        }
+
+        @media (max-width: 1500px) {
+            .main-content {
+                transform: scale(0.9);
+            }
+        }
+
+        @media (max-width: 1360px) {
+            .main-content {
+                transform: scale(0.8);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                transform: scale(0.7);
+            }
+        }
+
+        @media (max-width: 1050px) {
+            .main-content {
+                transform: scale(0.6);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="header">
+        <h1>CSV Upload and Model Selection</h1>
+        <div class="menu">
+            <button onclick="toggleMenu()" class="menu-button">
+                <div></div>
+                <div></div>
+            </button>
+            <div id="dropdown" class="dropdown-content">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('upload') }}">Upload CSV</a>
+                <a href="{{ url_for('about') }}">About the Author</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Upload and Model Selection Section -->
+        <div class="card options">
+            <h2 class="text-lg font-bold mb-4">Upload CSV</h2>
+            
+            <!-- Description Section -->
+            <p class="text-sm text-gray-700 mb-4">
+                Please upload your custom CSV file to analyze and train a model. Ensure your CSV contains exactly two features (columns) and one label (the last column). Currently, the system supports datasets with two features, but future updates will accommodate more features.
+            </p>
+        
+            <!-- CSV Upload Form -->
+            <form id="upload-form" class="mb-6">
+                <input type="file" id="file-input" name="file" accept=".csv" class="mb-4">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Upload CSV and Train Model</button>
+            </form>       
+        
+            <!-- Model Selection -->
+            <div id="model-selection" class="mb-6" style="display:none;">
+                <h2 class="text-lg font-bold mb-4">Select a Model</h2>
+                <div class="control-group">
+                    <label for="model-type" class="text-sm font-medium text-gray-700 mr-4">Select Model:</label>
+                    <select id="model-type" class="block w-full pl-3 pr-10 py-2 text-base border border-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                        <option value="knn">KNN</option>
+                        <option value="svm">SVM</option>
+                        <option value="kmeans">K-means</option>
+                        <option value="dtree">Decision Tree</option>
+                        <option value="rforest">Random Forest</option>
+                        <option value="logreg">Logistic Regression</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Plot Rendering Section -->
+        <div class="image-rendering">
+            <div id="model-result" class="mt-6" style="display:none;">
+                <div id="error-message" class="text-red-600 text-sm font-semibold" style="display:none;">
+                    <!-- Error message will be displayed here -->
+                </div>
+                <img id="model-plot" src="" alt="Model Plot" class="w-full rounded-lg" style="display:none;" />
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-gray-600 text-sm mt-10">
+        &copy; 2024 Machine Learning Visualization
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("dropdown").classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.menu-button') && !event.target.closest('.menu-button')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        let uploadedData = null;
+
+        document.getElementById('model-type').addEventListener('change', async function() {
+            const modelType = document.getElementById('model-type').value;
+
+            // Retrieve the latest uploaded data (X, y)
+            if (uploadedData) {
+                const modelResponse = await fetch('/api/model_csv', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model_type: modelType,
+                        X: uploadedData.X,
+                        y: uploadedData.y
+                    })
+                });
+
+                const plotImg = document.getElementById('model-plot');
+                const errorMessage = document.getElementById('error-message');
+                
+                if (modelResponse.ok) {
+                    const modelData = await modelResponse.json();
+                    plotImg.src = 'data:image/png;base64,' + modelData.plot_url;
+                    plotImg.style.display = 'block';
+                    errorMessage.style.display = 'none';
+                } else {
+                    errorMessage.textContent = 'Failed to train and plot the model';
+                    errorMessage.style.display = 'block';
+                    plotImg.style.display = 'none';
+                }
+            }
+        });
+
+        document.getElementById('upload-form').addEventListener('submit', async function(event) {
+            console.log("Form submitted");
+            event.preventDefault();
+            const fileInput = document.getElementById('file-input');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            const response = await fetch('/api/upload_csv', {
+                method: 'POST',
+                body: formData
+            });
+
+            const plotImg = document.getElementById('model-plot');
+            const modelResult = document.getElementById('model-result');
+            const errorMessage = document.getElementById('error-message');
+            const modelSelection = document.getElementById('model-selection'); // Reference to the model selection section
+
+            // Ensure the container is visible even if the image is not yet loaded
+            modelResult.style.display = 'block';
+
+            if (response.ok) {
+                const data = await response.json();
+                uploadedData = data;  // Save the uploaded data globally
+
+                // Automatically train the model with the uploaded CSV data
+                const modelType = document.getElementById('model-type').value;
+                const modelResponse = await fetch('/api/model_csv', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model_type: modelType,
+                        X: data.X,
+                        y: data.y
+                    })
+                });
+
+                if (modelResponse.ok) {
+                    const modelData = await modelResponse.json();
+                    plotImg.src = 'data:image/png;base64,' + modelData.plot_url;
+                    plotImg.style.display = 'block';
+                    errorMessage.style.display = 'none';
+
+                    // Show the model selection section
+                    console.log("Attempting to show the model selection section");
+                    modelSelection.style.display = 'block';
+                    console.log("Model selection section should now be visible");
+                } else {
+                    errorMessage.textContent = 'Failed to train and plot the model';
+                    errorMessage.style.display = 'block';
+                    plotImg.style.display = 'none';
+                    modelSelection.style.display = 'none'
+                }
+            } else {
+                const errorData = await response.json();
+                errorMessage.textContent = errorData.error || 'Failed to upload CSV';
+                errorMessage.style.display = 'block';
+                plotImg.style.display = 'none';
+                modelSelection.style.display = 'none'
+            }
+        });
+
+    </script>
+</body>
+</html>
+
